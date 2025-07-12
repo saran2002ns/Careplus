@@ -36,7 +36,7 @@ export default function AdminLogin() {
 
   
   const handleQuickLogin = () => {
-    setIdentifier("1"); 
+    setIdentifier("7094250807"); 
     setPassword("saran123");
   };
 

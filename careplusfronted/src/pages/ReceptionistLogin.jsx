@@ -34,8 +34,8 @@ export default function ReceptionistLogin() {
   };
 
   const handleQuickLogin = () => {
-    setIdentifier("1"); 
-    setPassword("reception123");
+    setIdentifier("7012345677"); 
+    setPassword("naveen@123");
   };
 
   return (
