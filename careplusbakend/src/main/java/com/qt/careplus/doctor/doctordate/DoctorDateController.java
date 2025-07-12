@@ -26,24 +26,22 @@ public class DoctorDateController {
     private final DoctorDateRepository doctorDateRepository;
     private final DoctorRepository doctorRepository;
 
-   @PostMapping
+    @PostMapping
     public ResponseEntity<String> addDoctorDate(@RequestBody DoctorDateDTO request) {
         try {
             Doctor doctor = doctorRepository.findById(request.getDoctorId())
                     .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
-            Date date = request.getDate(); 
+            Date date = request.getDate();
 
-            Optional<DoctorDate> existingDateOpt =
-                    doctorDateRepository.findByDoctorIdAndDate(doctor.getId(), date);
+            Optional<DoctorDate> existingDateOpt = doctorDateRepository.findByDoctorIdAndDate(doctor.getId(), date);
 
             DoctorDate doctorDate;
 
             if (existingDateOpt.isPresent()) {
-                
+
                 doctorDate = existingDateOpt.get();
 
-              
                 Map<String, TimeSlot> existingSlotMap = doctorDate.getTimeSlots().stream()
                         .collect(Collectors.toMap(TimeSlot::getTime, Function.identity()));
 
@@ -51,11 +49,11 @@ public class DoctorDateController {
                     String incomingTime = slotDTO.getTime();
 
                     if (existingSlotMap.containsKey(incomingTime)) {
-                        
+
                         TimeSlot slot = existingSlotMap.get(incomingTime);
                         slot.setAvailable(slotDTO.isAvailable());
                     } else {
-                      
+
                         TimeSlot newSlot = new TimeSlot();
                         newSlot.setTime(incomingTime);
                         newSlot.setAvailable(slotDTO.isAvailable());
@@ -65,14 +63,22 @@ public class DoctorDateController {
                 }
 
             } else {
-              
+
                 doctorDate = new DoctorDate();
-               
+
                 doctorDate.setDoctor(doctor);
                 doctorDate.setAvailable(request.isAvailable());
                 doctorDate.setDate(date);
 
-                List<TimeSlot> slots = request.getTimeSlots().stream().map(slotDTO -> {
+                // Ensure unique time slots by using a Map to filter duplicates
+                Map<String, TimeSlotDTO> uniqueSlotsMap = request.getTimeSlots().stream()
+                        .collect(Collectors.toMap(
+                                TimeSlotDTO::getTime,
+                                Function.identity(),
+                                (existing, replacement) -> existing // Keep the first occurrence if duplicate
+                        ));
+
+                List<TimeSlot> slots = uniqueSlotsMap.values().stream().map(slotDTO -> {
                     TimeSlot slot = new TimeSlot();
                     slot.setTime(slotDTO.getTime());
                     slot.setAvailable(slotDTO.isAvailable());
@@ -90,7 +96,7 @@ public class DoctorDateController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body("Failed to add/update doctor date: " + e.getMessage());
+                    .body("Failed to add/update doctor date: " + e.getMessage());
         }
     }
 
@@ -123,7 +129,7 @@ public class DoctorDateController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Failed to update doctor date: " + e.getMessage());
+                    .body("Failed to update doctor date: " + e.getMessage());
         }
     }
 
@@ -139,7 +145,7 @@ public class DoctorDateController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Failed to delete doctor date: " + e.getMessage());
+                    .body("Failed to delete doctor date: " + e.getMessage());
         }
     }
 
@@ -151,7 +157,7 @@ public class DoctorDateController {
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(null);
+                    .body(null);
         }
     }
 

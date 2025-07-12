@@ -8,6 +8,7 @@ export default function SearchDoctorForm() {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const [viewLoading, setViewLoading] = useState(false);
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [statusType, setStatusType] = useState('success');
   const searchTimeout = useRef();
@@ -64,6 +65,31 @@ export default function SearchDoctorForm() {
       setStatusType('error');
     }
     setLoading(false);
+  };
+
+  const handleViewDoctor = async (item) => {
+    setViewLoading(true);
+    try {
+      // Fetch doctor details with dates
+      const res = await fetch(`${API}/api/doctors/${item.doctor.doctorId}`);
+      if (!res.ok) throw new Error('Failed to fetch doctor details');
+      const doctorData = await res.json();
+      
+      // Extract doctor and dates from response
+      const docData = doctorData.doctorDTO || doctorData.doctor || doctorData;
+      const availableDates = doctorData.availableDates || doctorData.dates || [];
+      
+      setSelectedDoctor({
+        doctor: docData,
+        availableDates: availableDates
+      });
+    } catch (err) {
+      console.error(err);
+      setStatus('Failed to load doctor details');
+      setStatusType('error');
+    } finally {
+      setViewLoading(false);
+    }
   };
 
   return (
@@ -132,10 +158,18 @@ export default function SearchDoctorForm() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedDoctor(item)}
-                  className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                  onClick={() => handleViewDoctor(item)}
+                  disabled={viewLoading}
+                  className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  View
+                  {viewLoading ? (
+                    <div className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></span>
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    'View'
+                  )}
                 </button>
               </li>
             ) : null
@@ -149,33 +183,44 @@ export default function SearchDoctorForm() {
         <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-[420px] max-h-[80vh] overflow-y-auto text-center">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Doctor Details</h3>
-            <div className="text-left text-sm space-y-2 text-gray-700">
-              <p><strong>ID:</strong> {selectedDoctor.doctor.doctorId}</p>
-              <p><strong>Name:</strong> {selectedDoctor.doctor.name}</p>
-              <p><strong>Age:</strong> {selectedDoctor.doctor.age}</p>
-              <p><strong>Gender:</strong> {selectedDoctor.doctor.gender}</p>
-              <p><strong>Phone:</strong> {selectedDoctor.doctor.number}</p>
-              <p><strong>Specialist:</strong> {selectedDoctor.doctor.specialist}</p>
-            </div>
+            {viewLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="flex items-center gap-3">
+                  <span className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+                  <span className="text-blue-600 font-medium">Loading doctor details...</span>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="text-left text-sm space-y-2 text-gray-700">
+                  <p><strong>ID:</strong> {selectedDoctor.doctor.doctorId}</p>
+                  <p><strong>Name:</strong> {selectedDoctor.doctor.name}</p>
+                  <p><strong>Age:</strong> {selectedDoctor.doctor.age}</p>
+                  <p><strong>Gender:</strong> {selectedDoctor.doctor.gender}</p>
+                  <p><strong>Phone:</strong> {selectedDoctor.doctor.number}</p>
+                  <p><strong>Specialist:</strong> {selectedDoctor.doctor.specialist}</p>
+                </div>
 
-            <div className="mt-4 text-left">
-              <h4 className="font-semibold mb-1">Availability</h4>
-              {selectedDoctor.availableDates.length > 0 ? (
-                <ul className="list-disc list-inside text-sm space-y-1 text-gray-600">
-                  {selectedDoctor.availableDates.map((d, i) => (
-                    <li key={i}>
-                      <strong>{d.date}:</strong>{' '}
-                      {d.timeSlots
-                        .filter(ts => ts.available)
-                        .map(ts => ts.time)
-                        .join(', ') || 'No slots'}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500">No available dates.</p>
-              )}
-            </div>
+                <div className="mt-4 text-left">
+                  <h4 className="font-semibold mb-1">Availability</h4>
+                  {selectedDoctor.availableDates.length > 0 ? (
+                    <ul className="list-disc list-inside text-sm space-y-1 text-gray-600">
+                      {selectedDoctor.availableDates.map((d, i) => (
+                        <li key={i}>
+                          <strong>{d.date}:</strong>{' '}
+                          {d.timeSlots
+                            .filter(ts => ts.available)
+                            .map(ts => ts.time)
+                            .join(', ') || 'No slots'}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">No available dates.</p>
+                  )}
+                </div>
+              </>
+            )}
 
             <button
               onClick={() => setSelectedDoctor(null)}
