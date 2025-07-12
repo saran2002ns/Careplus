@@ -13,6 +13,7 @@ function DeletePatientForm() {
   const [statusType, setStatusType] = useState('success');
   const searchTimeout = useRef();
   const [showModal, setShowModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleSearch = async () => {
     setPatientResults([]);
@@ -53,6 +54,7 @@ function DeletePatientForm() {
   };
 
   const handleDelete = async () => {
+    setDeleteLoading(true);
     try {
       const res = await axios.delete(`${API}/api/patients/${selectedPatient.id}`);
       setStatus(res.data);
@@ -61,6 +63,7 @@ function DeletePatientForm() {
       setStatus(err.response?.data || 'Failed to delete patient.');
       setStatusType('error');
     } finally {
+      setDeleteLoading(false);
       setShowModal(true);
       setPatientResults([]);
       setSelectedPatient(null);
@@ -158,13 +161,24 @@ function DeletePatientForm() {
           <div className="flex justify-center gap-4">
             <button
               onClick={handleDelete}
-              className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+              disabled={deleteLoading}
+              className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Confirm Delete
+              {deleteLoading ? (
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></span>
+                  <span>Deleting...</span>
+                </div>
+              ) : (
+                'Confirm Delete'
+              )}
             </button>
             <button
               onClick={() => setSelectedPatient(null)}
-              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              disabled={deleteLoading}
+              className={`px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${
+                deleteLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               Cancel
             </button>

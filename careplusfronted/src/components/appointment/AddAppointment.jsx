@@ -22,6 +22,7 @@ export default function AddAppointment() {
   const [showConfirmOverlay, setShowConfirmOverlay] = useState(false);
   const [showFinalOverlay, setShowFinalOverlay] = useState(false);
   const [error, setError] = useState('');
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const patientSearchTimeout = useRef();
   const doctorSearchTimeout = useRef();
@@ -98,6 +99,7 @@ export default function AddAppointment() {
   };
 
   const createAppointment = async () => {
+    setConfirmLoading(true);
     try {
       const payload = {
         patientId: selectedPatient.id,
@@ -111,6 +113,8 @@ export default function AddAppointment() {
       setError('');
     } catch {
       setError('Failed to create appointment');
+    } finally {
+      setConfirmLoading(false);
     }
   };
 
@@ -383,13 +387,22 @@ export default function AddAppointment() {
             <div className="mt-4 flex justify-center gap-4">
               <button
                 onClick={createAppointment}
-                className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                disabled={confirmLoading}
+                className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirm
+                {confirmLoading ? (
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></span>
+                    <span>Creating...</span>
+                  </div>
+                ) : (
+                  'Confirm'
+                )}
               </button>
               <button
                 onClick={() => setShowConfirmOverlay(false)}
-                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+                disabled={confirmLoading}
+                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

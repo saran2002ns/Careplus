@@ -19,6 +19,7 @@ export default function AddPatientForm() {
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState('');
   const [statusType, setStatusType] = useState('success'); // 'success' or 'error'
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -48,6 +49,8 @@ export default function AddPatientForm() {
     setShowModal(true);
     return;
   }
+
+  setSubmitLoading(true);
 
   const fullNumber = `${formData.number}`;
   const fullAddress = `${formData.addressLine}, ${formData.district}, ${formData.state}`;
@@ -98,6 +101,8 @@ export default function AddPatientForm() {
     setStatus("Failed to connect to server");
     setStatusType('error');
     setShowModal(true);
+  } finally {
+    setSubmitLoading(false);
   }
 };
 
@@ -238,9 +243,17 @@ export default function AddPatientForm() {
         <div className="col-span-2">
           <button
             type="submit"
-            className="mt-4 px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+            disabled={submitLoading}
+            className="mt-4 px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Submit
+            {submitLoading ? (
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></span>
+                <span>Adding Patient...</span>
+              </div>
+            ) : (
+              'Submit'
+            )}
           </button>
         </div>
       </form>

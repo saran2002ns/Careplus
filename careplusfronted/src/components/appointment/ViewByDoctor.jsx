@@ -69,9 +69,11 @@ function ViewByDoctor() {
 
       {/* Appointments Display */}
       {loading ? (
-        <div className="flex items-center gap-2 mt-4">
-          <span className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
-          <span className="text-orange-600 font-medium">Loading appointments...</span>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center gap-3">
+            <span className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+            <span className="text-orange-600 font-medium text-lg">Loading appointments...</span>
+          </div>
         </div>
       ) : (
         <>

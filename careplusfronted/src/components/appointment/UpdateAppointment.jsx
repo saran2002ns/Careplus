@@ -13,6 +13,8 @@ function UpdateAppointment() {
   const [showNotFoundOverlay, setShowNotFoundOverlay] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleSearch = async () => {
     setSearchAttempted(true);
@@ -31,6 +33,7 @@ function UpdateAppointment() {
   };
 
   const handleUpdate = async () => {
+    setConfirmLoading(true);
     try {
       await axios.put(`${API}/api/appointments/${appointmentId}`, {
         id: appointmentData.id,
@@ -45,6 +48,8 @@ function UpdateAppointment() {
     } catch (err) {
       alert('Failed to update appointment');
       console.error(err);
+    } finally {
+      setConfirmLoading(false);
     }
   };
 
@@ -53,6 +58,7 @@ function UpdateAppointment() {
   };
 
   const confirmDelete = async () => {
+    setDeleteLoading(true);
     try {
       await axios.delete(`${API}/api/appointments/${appointmentId}`);
       setShowDeleteConfirm(false);
@@ -64,6 +70,8 @@ function UpdateAppointment() {
     } catch (err) {
       setShowDeleteConfirm(false);
       alert('Could not delete appointment.');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -203,13 +211,22 @@ function UpdateAppointment() {
             <div className="flex justify-center gap-4 mt-4">
               <button
                 onClick={handleUpdate}
-                className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                disabled={confirmLoading}
+                className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirm
+                {confirmLoading ? (
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></span>
+                    <span>Updating...</span>
+                  </div>
+                ) : (
+                  'Confirm'
+                )}
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+                disabled={confirmLoading}
+                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -242,13 +259,22 @@ function UpdateAppointment() {
             <div className="flex justify-center gap-4 mt-4">
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+                disabled={deleteLoading}
+                className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Delete
+                {deleteLoading ? (
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></span>
+                    <span>Deleting...</span>
+                  </div>
+                ) : (
+                  'Delete'
+                )}
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+                disabled={deleteLoading}
+                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

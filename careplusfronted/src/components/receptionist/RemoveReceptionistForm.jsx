@@ -11,6 +11,7 @@ function RemoveReceptionistForm() {
   const [statusMessage, setStatusMessage] = useState('');
   const [statusType, setStatusType] = useState('success'); // 'success' or 'error'
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [searchAttempted, setSearchAttempted] = useState(false);
   const searchTimeout = useRef();
 
@@ -48,6 +49,7 @@ function RemoveReceptionistForm() {
 
   const handleDelete = async (id) => {
     try {
+      setDeleteLoading(true);
       await axios.delete(`${API}/api/receptionists/${id}`);
       setStatusMessage('Receptionist deleted successfully!');
       setStatusType('success');
@@ -57,6 +59,8 @@ function RemoveReceptionistForm() {
       setStatusMessage('Failed to delete receptionist.');
       setStatusType('error');
       setShowStatus(true);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -146,9 +150,15 @@ function RemoveReceptionistForm() {
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => handleDelete(selectedReceptionist.id)}
-                className="px-4 py-2 rounded border border-red-600 text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+                disabled={deleteLoading}
+                className={`px-4 py-2 rounded border border-red-600 text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition flex items-center gap-2 ${
+                  deleteLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Yes, Delete
+                {deleteLoading && (
+                  <span className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></span>
+                )}
+                {deleteLoading ? 'Deleting...' : 'Yes, Delete'}
               </button>
 
               <button
@@ -156,7 +166,10 @@ function RemoveReceptionistForm() {
                   setShowConfirm(false);
                   setSelectedReceptionist(null);
                 }}
-                className="px-4 py-2 rounded border border-gray-400 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+                disabled={deleteLoading}
+                className={`px-4 py-2 rounded border border-gray-400 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition ${
+                  deleteLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
                 Cancel
               </button>

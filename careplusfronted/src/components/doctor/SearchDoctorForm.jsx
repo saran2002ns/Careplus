@@ -8,7 +8,7 @@ export default function SearchDoctorForm() {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
-  const [viewLoading, setViewLoading] = useState(false);
+  const [viewLoadingStates, setViewLoadingStates] = useState({});
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [statusType, setStatusType] = useState('success');
   const searchTimeout = useRef();
@@ -68,10 +68,11 @@ export default function SearchDoctorForm() {
   };
 
   const handleViewDoctor = async (item) => {
-    setViewLoading(true);
+    const doctorId = item.doctor.doctorId;
+    setViewLoadingStates(prev => ({ ...prev, [doctorId]: true }));
     try {
       // Fetch doctor details with dates
-      const res = await fetch(`${API}/api/doctors/${item.doctor.doctorId}`);
+      const res = await fetch(`${API}/api/doctors/${doctorId}`);
       if (!res.ok) throw new Error('Failed to fetch doctor details');
       const doctorData = await res.json();
       
@@ -88,7 +89,7 @@ export default function SearchDoctorForm() {
       setStatus('Failed to load doctor details');
       setStatusType('error');
     } finally {
-      setViewLoading(false);
+      setViewLoadingStates(prev => ({ ...prev, [doctorId]: false }));
     }
   };
 
@@ -159,10 +160,10 @@ export default function SearchDoctorForm() {
                 </div>
                 <button
                   onClick={() => handleViewDoctor(item)}
-                  disabled={viewLoading}
+                  disabled={viewLoadingStates[item.doctor.doctorId]}
                   className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {viewLoading ? (
+                  {viewLoadingStates[item.doctor.doctorId] ? (
                     <div className="flex items-center gap-2">
                       <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></span>
                       <span>Loading...</span>
@@ -183,7 +184,7 @@ export default function SearchDoctorForm() {
         <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-[420px] max-h-[80vh] overflow-y-auto text-center">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Doctor Details</h3>
-            {viewLoading ? (
+            {Object.values(viewLoadingStates).some(loading => loading) ? (
               <div className="flex items-center justify-center py-8">
                 <div className="flex items-center gap-3">
                   <span className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>

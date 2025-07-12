@@ -6,6 +6,7 @@ function AddDoctorForm() {
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState('');
   const [statusType, setStatusType] = useState('success'); // 'success' or 'error'
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     age: '',
@@ -41,6 +42,8 @@ function AddDoctorForm() {
       return;
     }
 
+    setSubmitLoading(true);
+
     const doctorDTO = {
       name: formData.name,
       age: age,
@@ -74,6 +77,8 @@ function AddDoctorForm() {
     } catch (err) {
       setStatus("Failed to connect to server");
       setStatusType('error');
+    } finally {
+      setSubmitLoading(false);
     }
 
     setShowModal(true);
@@ -173,9 +178,18 @@ function AddDoctorForm() {
         {/* Submit Button */}
         <div className="col-span-2 flex justify-start">
           <button
-            className="px-4 py-2 rounded border border-purple-600 text-purple-700 font-semibold hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+            type="submit"
+            disabled={submitLoading}
+            className="px-4 py-2 rounded border border-purple-600 text-purple-700 font-semibold hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add Doctor
+            {submitLoading ? (
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></span>
+                <span>Adding Doctor...</span>
+              </div>
+            ) : (
+              'Add Doctor'
+            )}
           </button>
 
         </div>

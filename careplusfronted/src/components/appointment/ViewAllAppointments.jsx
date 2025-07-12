@@ -27,8 +27,22 @@ export default function ViewAllAppointments() {
     window.location.href = `/appointments/${id}/edit`;
   };
 
-  if (loading) return <p>Loading appointments…</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center gap-3">
+        <span className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+        <span className="text-orange-600 font-medium text-lg">Loading appointments...</span>
+      </div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="text-center">
+        <p className="text-red-500 text-lg font-medium">{error}</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-4 space-y-6">

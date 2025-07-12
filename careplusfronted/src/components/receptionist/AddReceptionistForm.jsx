@@ -13,6 +13,7 @@ export default function AddReceptionistForm() {
   const [status, setStatus] = useState('');
   const [showOverlay, setShowOverlay] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   // Add statusType state
   const [statusType, setStatusType] = useState('success'); // 'success' or 'error'
 
@@ -41,6 +42,7 @@ export default function AddReceptionistForm() {
   };
 
   try {
+    setLoading(true);
     const response = await axios.post(`${API}/api/receptionists`, receptionistPayload);
     setStatus(` ${response.data}`);
     setShowOverlay(true);
@@ -52,6 +54,8 @@ export default function AddReceptionistForm() {
     });
   } catch (err) {
     setError(`❌ Failed to add receptionist: ${err.response?.data || err.message}`);
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -121,9 +125,16 @@ export default function AddReceptionistForm() {
 
         <div className="col-span-2">
          <button
-            className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+            type="submit"
+            disabled={loading}
+            className={`px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition flex items-center justify-center gap-2 ${
+              loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Add Receptionist
+            {loading && (
+              <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></span>
+            )}
+            {loading ? 'Adding Receptionist...' : 'Add Receptionist'}
           </button>
 
         </div>

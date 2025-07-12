@@ -10,6 +10,7 @@ function UpdatePatientForm() {
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [statusType, setStatusType] = useState('success');
   const [showOverlay, setShowOverlay] = useState(false);
@@ -80,6 +81,7 @@ function UpdatePatientForm() {
     }
     
     try {
+      setUpdateLoading(true);
       const res = await axios.put(
         `${API}/api/patients/${selectedPatient.id}`,
         updatedPatient
@@ -90,6 +92,7 @@ function UpdatePatientForm() {
       setStatus(err.response?.data || 'Failed to update patient.');
       setStatusType('error');
     } finally {
+      setUpdateLoading(false);
       setShowModal(true);
       // Remove auto-close logic
       // setTimeout(() => {
@@ -252,9 +255,16 @@ function UpdatePatientForm() {
 
           <div className="col-span-2 flex justify-center gap-4">
             <button
-              className="px-4 py-2 rounded border border-yellow-600 text-yellow-700 font-semibold hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+              type="submit"
+              disabled={updateLoading}
+              className={`px-4 py-2 rounded border border-yellow-600 text-yellow-700 font-semibold hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition flex items-center gap-2 ${
+                updateLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Submit Update
+              {updateLoading && (
+                <span className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></span>
+              )}
+              {updateLoading ? 'Updating...' : 'Submit Update'}
             </button>
             <button
               type="button"
@@ -263,7 +273,10 @@ function UpdatePatientForm() {
                 setPatientResults([]);
                 setSearchInput('');
               }}
-              className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+              disabled={updateLoading}
+              className={`px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition ${
+                updateLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               Back
             </button>
