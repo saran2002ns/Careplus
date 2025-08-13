@@ -2,7 +2,7 @@
 
 
 // export const API="http://localhost:8080";
-export const API="https://careplus-production.up.railway.app";
+export const API="https://careplusbackend-production.up.railway.app";
 
 // const API_BASE = `${API}/api/dates`;
 
