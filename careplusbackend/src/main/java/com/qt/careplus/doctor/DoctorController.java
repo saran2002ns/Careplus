@@ -2,11 +2,8 @@ package com.qt.careplus.doctor;
 
 import java.util.List;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.*;
 
 import com.qt.careplus.doctor.doctordate.DoctorDateDTO;
@@ -180,11 +177,5 @@ public class DoctorController {
 
 
    
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-        return http.build();
-    }
+
 }

@@ -20,16 +20,15 @@ public class CorsFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
 
         String origin = request.getHeader("Origin");
-        if (origin != null && (origin.equals("https://careplus-silk.vercel.app") ||
-                origin.equals("http://localhost:3000") ||
-                origin.equals("http://localhost:5173"))) {
+        if (origin != null && (origin.equals("https://careplus-silk.vercel.app") || 
+            origin.equals("http://localhost:3000") || 
+            origin.equals("http://localhost:5173"))) {
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
         response.setHeader("Access-Control-Allow-Credentials", "false");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
         response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
