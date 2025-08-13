@@ -114,4 +114,9 @@ public class AdminController {
                     .body(null);
         }
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> testCors() {
+        return ResponseEntity.ok("CORS is working!");
+    }
 }
